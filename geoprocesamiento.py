@@ -64,11 +64,15 @@ def create_Influence_Area(dataset_1, dataset_2):
     
 def create_ramdom_students(dataset, poligono):
     students = arcpy.management.CreateRandomPoints(dataset, "estudiantes", poligono, "", "INSCRITOS")
-    return students
+    intersectar = [students, poligono]
+    studentsxIE = arcpy.analysis.Intersect(intersectar, "Estudiantes_finales")
+    arcpy.management.DeleteField(studentsxIE, "INSCRITOS")
+    
+    return studentsxIE
     
 def seleccion(dataset_1, poligono, estudiantes):
     
-    with arcpy.da.SearchCursor(poligono, ["OID@","NOMBRE"]) as cursor:
+    with arcpy.da.SearchCursor(poligono, ["OID@","NOMBRE","CODIGO"]) as cursor:
         for row in cursor:
             output_layer_file = os.path.join(location_folder + f"\Layer", "Ruta_Estudiantes" + f"_{row[0]}.lyrx")
             set_workespace(GDB)
@@ -106,8 +110,14 @@ def seleccion(dataset_1, poligono, estudiantes):
             if row[0] == 1:
                 set_workespace(dataset_1)
                 final_road = arcpy.analysis.Intersect([road, bordes], "Ruta")
+                
+                arcpy.management.AddField(final_road,"CODIGO_IE","TEXT",None,None,None,"CODIGO_IE")
+                arcpy.management.CalculateField(final_road, "CODIGO_IE",f"'{row[2]}'")
+                
             else:
                 selected_road = arcpy.analysis.Intersect([road, bordes], "Via_Seleccionada")
+                arcpy.management.AddField(selected_road,"CODIGO_IE","TEXT",None,None,None,"CODIGO_IE")
+                arcpy.management.CalculateField(selected_road, "CODIGO_IE",f"'{row[2]}'")
                 arcpy.management.Append(selected_road, final_road)
             
             layer = arcpy.mp.LayerFile(location_folder + f"\Layer\Ruta_Estudiantes_{row[0]}.lyrx")
