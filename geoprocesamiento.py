@@ -64,6 +64,7 @@ def create_Influence_Area(dataset_1, dataset_2):
     
 def create_ramdom_students(dataset, poligono):
     students = arcpy.management.CreateRandomPoints(dataset, "estudiantes", poligono, "", "INSCRITOS")
+    set_workespace(dataset)
     intersectar = [students, poligono]
     studentsxIE = arcpy.analysis.Intersect(intersectar, "Estudiantes_finales")
     arcpy.management.DeleteField(studentsxIE, "INSCRITOS")
