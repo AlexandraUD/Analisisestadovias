@@ -1,0 +1,274 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}
+\shorthandoff{"}
+\usepackage{csquotes}
+\usepackage{amsmath,amsthm,bm}
+\usepackage{eso-pic}
+\usepackage{mathpazo}
+\usepackage{setspace}
+\setstretch{1.2}
+\setlength{\parskip}{10pt}
+\usepackage{indentfirst}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{ragged2e}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning}
+\usepackage{subcaption}
+\usepackage{mfirstuc}
+\usepackage{appendix}
+\usepackage{titletoc}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\hypersetup{hidelinks}
+\usepackage[style=apa,backend=biber,sorting=none]{biblatex}
+\addbibresource{export.bib}
+
+\newtheorem{teorema}{Teorema}
+
+\graphicspath{{./figuras/}}
+
+\geometry{top=2.54cm, left=2.54cm, right=2.54cm, bottom=2.54cm}
+
+\pagestyle{fancy}
+\lhead{} \chead{} \rhead{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\lfoot{} \cfoot{} \rfoot{}
+\renewcommand{\footrulewidth}{0pt}
+
+\fancypagestyle{plain}{%
+  \fancyhf{}%
+  \renewcommand{\headrulewidth}{0pt}%
+  \renewcommand{\footrulewidth}{0pt}%
+}
+
+% Configuración de estilo para el código MATLAB
+\lstset{
+    language=Matlab,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue}\bfseries,
+    commentstyle=\color{green!60!black},
+    stringstyle=\color{purple},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    breaklines=true,
+    frame=single,
+    captionpos=b,
+    showstringspaces=false,
+    extendedchars=true,
+    literate=%
+    {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+    {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+    {ñ}{{\~n}}1 {Ñ}{{\~N}}1
+}
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+    \singlespacing
+    \vspace*{\fill}
+    \vspace{-2cm}
+    \includegraphics[width=3.5cm]{logo1.png}\par
+    \vspace{0.1cm}
+    {\large Universidad Distrital Francisco José de Caldas \par}
+    \vspace{0.2cm}
+    {\large Facultad de Ingeniería \\Ingeniería Catastral y Geodesia\par}
+    \vspace{1.5cm}
+    {\large \bfseries
+    Tarea 10 \\Herramientas Matemáticas \\para el Procesamiento de la Información \par}
+    \vspace{1.5cm}
+    {\large Presentado por \\Argenis Alexandra Daza Roa \par}
+    \vspace{1.5cm}
+    {\large Docente \\Msc. Hans Igor López Chávez \par}
+    \vspace{1.5cm}
+    {\large 21 de octubre de 2026 \par}
+    \vspace{0.5cm}
+    {\large Bogotá D.C. \par}
+    \vspace*{\fill}
+\end{titlepage}
+
+\newpage
+
+\section{Desarrollo}
+
+Individualmente, desarrolle el modelo matemático de la cola M/M/1/K. En concreto:
+
+\begin{itemize}
+    \item Plantee el diagrama de transición de estados.
+    \item Obtenga las ecuaciones de estado estacionario.
+    \item Obtenga $P_n$ en función de $P_0$.
+    \item Obtenga $P_n$ en función de los parámetros $\lambda$ y $\mu$.
+\end{itemize}
+
+\subsection{Descripción del sistema}
+
+Según la notación de Kendall-Lee $A/B/C/D/E/F$ \autocite[cap.~1]{shortle2018}, la cola M/M/1/K corresponde a M/M/1/K/$\infty$/FIFO (población infinita, disciplina FIFO), es decir:
+
+\begin{itemize}
+    \item Llegadas de Poisson con tasa $\lambda$ (tiempos entre llegadas $T\sim \mathrm{Exp}(x;\lambda)$).
+    \item Un servidor con tiempos de servicio exponenciales de tasa $\mu$ (sin memoria, $T\sim \mathrm{Exp}(x;\mu)$).
+    \item Capacidad máxima del sistema igual a $K$ (línea de espera más servidor): un cliente que llega cuando hay $K$ en el sistema es rechazado.
+\end{itemize}
+
+Sea $P_n$ la probabilidad de que haya $n$ clientes en el sistema, con $n=0,1,\dots,K$.
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[>=Stealth, every node/.style={font=\small}]
+    \draw (1.2,0) rectangle (4.2,0.8);
+    \draw (2.2,0) -- (2.2,0.8);
+    \draw (3.2,0) -- (3.2,0.8);
+    \node at (1.7,0.4) {$\cdots$};
+    \draw (5.0,0.4) circle (0.45);
+    \node at (5.0,0.4) {$\mu$};
+    \draw[->] (4.2,0.4) -- (4.55,0.4);
+    \draw[->] (5.45,0.4) -- (6.3,0.4);
+    \draw[->] (-0.6,0.4) -- node[above]{$\lambda$} (1.2,0.4);
+    \draw[<->] (1.2,-0.35) -- node[below]{$K-1$ espacios} (4.2,-0.35);
+\end{tikzpicture}
+\caption{Esquema del sistema M/M/1/K.}
+\end{figure}
+
+\subsection{Diagrama de transición de estados}
+
+El sistema es un proceso de nacimiento y muerte con espacio de estados finito $\{0,1,\dots,K\}$ \autocite[cap.~3]{shortle2018}. Un nacimiento ($n\to n+1$) ocurre con tasa $\lambda$ solo si $n<K$, pues en el estado $K$ el sistema está lleno y las llegadas se pierden. Una muerte ($n\to n-1$) ocurre con tasa $\mu$ si $n\geq 1$. La tasa promedio de cada transición es la tasa multiplicada por la probabilidad del estado de origen.
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[>=Stealth, node distance=2.15cm,
+    st/.style={circle,draw,minimum size=0.95cm}]
+    \node[st] (0) {0};
+    \node[st,right=of 0] (1) {1};
+    \node[st,right=of 1] (2) {2};
+    \node[right=of 2] (d) {$\cdots$};
+    \node[st,right=of d] (k1) {\scriptsize$K{-}1$};
+    \node[st,right=of k1] (k) {$K$};
+
+    \draw[->,blue] (0) to[bend left=40] node[above]{$\lambda P_0$} (1);
+    \draw[->,blue] (1) to[bend left=40] node[above]{$\lambda P_1$} (2);
+    \draw[->,blue] (2) to[bend left=40] node[above]{$\lambda P_2$} (d);
+    \draw[->,blue] (d) to[bend left=40] node[above]{\scriptsize$\lambda P_{K-2}$} (k1);
+    \draw[->,blue] (k1) to[bend left=40] node[above]{\scriptsize$\lambda P_{K-1}$} (k);
+
+    \draw[->,red] (1) to[bend left=40] node[below]{$\mu P_1$} (0);
+    \draw[->,red] (2) to[bend left=40] node[below]{$\mu P_2$} (1);
+    \draw[->,red] (d) to[bend left=40] node[below]{$\mu P_3$} (2);
+    \draw[->,red] (k1) to[bend left=40] node[below]{\scriptsize$\mu P_{K-1}$} (d);
+    \draw[->,red] (k) to[bend left=40] node[below]{$\mu P_K$} (k1);
+\end{tikzpicture}
+\caption{Diagrama de transición de estados de la cola M/M/1/K.}
+\end{figure}
+
+\subsection{Ecuaciones de estado estacionario}
+
+En estado estacionario, para cada estado la tasa promedio de salida del estado es igual a la tasa promedio de llegada al estado (ecuaciones de balance) \autocite[cap.~3]{shortle2018}.
+
+\begin{center}
+\begin{tabular}{c c c c}
+\hline
+Estado & Tasa promedio de salida del estado & $=$ & Tasa promedio de llegada al estado \\
+\hline
+$0$ & $\lambda P_0$ & $=$ & $\mu P_1$ \\[4pt]
+$1$ & $\mu P_1+\lambda P_1$ & $=$ & $\lambda P_0+\mu P_2$ \\[4pt]
+$2$ & $\mu P_2+\lambda P_2$ & $=$ & $\lambda P_1+\mu P_3$ \\[4pt]
+$\vdots$ & $\vdots$ & & $\vdots$ \\[4pt]
+$n$ & $\mu P_n+\lambda P_n$ & $=$ & $\lambda P_{n-1}+\mu P_{n+1}$ \quad $(1\le n\le K-1)$ \\[4pt]
+$K$ & $\mu P_K$ & $=$ & $\lambda P_{K-1}$ \\
+\hline
+\end{tabular}
+\end{center}
+
+En el estado $K$ no aparece el término de salida $\lambda P_K$, porque desde $K$ no hay nacimientos (el sistema está lleno).
+
+\subsection{$P_n$ en función de $P_0$}
+
+Del estado $0$:
+\[
+\lambda P_0=\mu P_1 \;\Rightarrow\; P_1=\frac{\lambda}{\mu}P_0 .
+\]
+
+Del estado $1$:
+\[
+\mu P_1+\lambda P_1=\lambda P_0+\mu P_2 .
+\]
+Como $\lambda P_0=\mu P_1$, se cancelan $\mu P_1$ y $\lambda P_0$ y queda
+\[
+\lambda P_1=\mu P_2 \;\Rightarrow\; P_2=\frac{\lambda}{\mu}P_1=\left(\frac{\lambda}{\mu}\right)^2P_0 .
+\]
+
+Del estado $2$, usando $\lambda P_1=\mu P_2$:
+\[
+\lambda P_2=\mu P_3 \;\Rightarrow\; P_3=\frac{\lambda}{\mu}P_2=\left(\frac{\lambda}{\mu}\right)^3P_0 .
+\]
+
+En general, cada ecuación, una vez simplificada con la anterior, da:
+\[
+\lambda P_n=\mu P_{n+1}\;\Rightarrow\; P_{n+1}=\frac{\lambda}{\mu}P_n,\qquad n=0,1,\dots,K-1 .
+\]
+Es decir, la probabilidad de un estado depende solo del estado anterior. Por inducción: si $P_n=\left(\frac{\lambda}{\mu}\right)^nP_0$, entonces $P_{n+1}=\frac{\lambda}{\mu}P_n=\left(\frac{\lambda}{\mu}\right)^{n+1}P_0$. Por lo tanto,
+\[
+\boxed{P_n=\left(\frac{\lambda}{\mu}\right)^{n}P_0,\qquad n=0,1,\dots,K}
+\]
+La ecuación del estado $K$, $\mu P_K=\lambda P_{K-1}$, coincide con la recurrencia anterior para $n=K-1$; es redundante, pero confirma que la fórmula también es válida en el último estado $n=K$.
+
+\subsection{$P_n$ en función de $\lambda$ y $\mu$}
+
+Sea $A=\dfrac{\lambda}{\mu}$ (intensidad de tráfico). Como el sistema solo puede estar en los estados $0,\dots,K$, la condición de normalización es
+\[
+\sum_{n=0}^{K}P_n=1
+\;\Rightarrow\;
+P_0\sum_{n=0}^{K}A^n=1
+\;\Rightarrow\;
+P_0=\frac{1}{S_K},\qquad S_K=\sum_{n=0}^{K}A^n ,
+\]
+donde $S_K$ es la suma de los primeros $K+1$ términos.
+
+\textbf{Cálculo de $S_K$} (suma geométrica finita):
+\begin{align*}
+S_K &= 1+A+A^2+\cdots+A^{K-1}+A^K \\
+AS_K &= \phantom{1+{}}A+A^2+\cdots+A^{K-1}+A^K+A^{K+1}
+\end{align*}
+Restando ambas expresiones se cancelan todos los términos intermedios:
+\[
+S_K-AS_K=1-A^{K+1}\;\Rightarrow\;S_K=\frac{1-A^{K+1}}{1-A},\qquad A\neq 1 .
+\]
+
+Entonces
+\[
+\boxed{P_0=\frac{1-A}{1-A^{K+1}}=\frac{1-\frac{\lambda}{\mu}}{1-\left(\frac{\lambda}{\mu}\right)^{K+1}}}
+\]
+y sustituyendo en $P_n=A^nP_0$:
+\[
+\boxed{P_n=\frac{\left(1-\frac{\lambda}{\mu}\right)\left(\frac{\lambda}{\mu}\right)^{n}}{1-\left(\frac{\lambda}{\mu}\right)^{K+1}}=\frac{(1-A)A^n}{1-A^{K+1}},\qquad n=0,1,\dots,K,\quad \lambda\neq\mu}
+\]
+
+De forma equivalente, multiplicando numerador y denominador por $\mu^{K+1}$:
+\[
+P_n=\frac{(\mu-\lambda)\,\lambda^{n}\,\mu^{K-n}}{\mu^{K+1}-\lambda^{K+1}},\qquad n=0,1,\dots,K .
+\]
+
+Este resultado coincide con el caso de un servidor ($c=1$) de la cola de capacidad finita M/M/c/K \autocite[cap.~3]{shortle2018}.
+
+\textbf{Relación con la M/M/1.} En la M/M/1 (capacidad infinita) la suma es infinita, $S_\infty=\frac{1}{1-A}$, la cual converge solo si $|A|<1$, es decir $\lambda<\mu$; así se obtiene $P_0=1-A$ y $P_n=\left(\frac{\lambda}{\mu}\right)^n\left(1-\frac{\lambda}{\mu}\right)$. En la M/M/1/K la suma es finita y por eso aparece el denominador $1-A^{K+1}$, que no se puede eliminar.
+
+\textbf{Caso $\lambda=\mu$ ($A=1$).} Entonces $S_K=\sum_{n=0}^{K}1=K+1$, de modo que
+\[
+P_0=P_n=\frac{1}{K+1},\qquad n=0,1,\dots,K .
+\]
+
+\textbf{Observaciones.}
+\begin{itemize}
+    \item Como la suma es finita, el sistema alcanza estado estacionario para cualquier $\lambda,\mu>0$; no se requiere $\lambda<\mu$ (condición que sí exige la M/M/1 para que la serie converja, $|A|<1$).
+    \item Si $\lambda<\mu$ y $K\to\infty$, entonces $A^{K+1}\to 0$ y se recupera la M/M/1: $P_n=\left(\frac{\lambda}{\mu}\right)^n\left(1-\frac{\lambda}{\mu}\right)$.
+    \item La probabilidad de bloqueo (cliente rechazado) es $P_K=\dfrac{(1-A)A^K}{1-A^{K+1}}$.
+\end{itemize}
+
+\printbibliography
+
+\end{document}
